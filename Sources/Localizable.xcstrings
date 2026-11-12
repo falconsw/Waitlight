@@ -1,0 +1,356 @@
+{
+  "sourceLanguage": "en",
+  "version": "1.0",
+  "strings": {
+    "%@ is done": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ bitti"
+          }
+        }
+      }
+    },
+    "%@ is waiting": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ seni bekliyor"
+          }
+        }
+      }
+    },
+    "%lld d": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld g"
+          }
+        }
+      }
+    },
+    "%lld d %lld h": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld g %lld sa"
+          }
+        }
+      }
+    },
+    "%lld h": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sa"
+          }
+        }
+      }
+    },
+    "%lld h %lld min": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld sa %lld dk"
+          }
+        }
+      }
+    },
+    "%lld min": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld dk"
+          }
+        }
+      }
+    },
+    "Agent": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajan"
+          }
+        }
+      }
+    },
+    "All models": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tüm modeller"
+          }
+        }
+      }
+    },
+    "Claude Code is waiting for your answer.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code cevabını bekliyor."
+          }
+        }
+      }
+    },
+    "Claude usage": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude kullanımı"
+          }
+        }
+      }
+    },
+    "Could not read just now": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şu an okunamadı"
+          }
+        }
+      }
+    },
+    "Current session": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mevcut oturum"
+          }
+        }
+      }
+    },
+    "Desktop": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masaüstü"
+          }
+        }
+      }
+    },
+    "Done · your turn": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitti · sıra sende"
+          }
+        }
+      }
+    },
+    "Go to this session": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu oturuma git"
+          }
+        }
+      }
+    },
+    "Idle": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Boşta"
+          }
+        }
+      }
+    },
+    "No Claude Code session is open.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Açık Claude Code oturumu yok."
+          }
+        }
+      }
+    },
+    "Not signed in": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giriş yapılmamış"
+          }
+        }
+      }
+    },
+    "Notify when a session waits for me": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir oturum beni beklediğinde bildir"
+          }
+        }
+      }
+    },
+    "Notify when a turn ends": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bir iş bittiğinde bildir"
+          }
+        }
+      }
+    },
+    "Open at login": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Girişte aç"
+          }
+        }
+      }
+    },
+    "Quit Waitlight": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waitlight'tan çık"
+          }
+        }
+      }
+    },
+    "Resets in %@": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ sonra sıfırlanır"
+          }
+        }
+      }
+    },
+    "Resets in %@ · %@": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ sonra sıfırlanır · %2$@"
+          }
+        }
+      }
+    },
+    "Sessions": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oturumlar"
+          }
+        }
+      }
+    },
+    "Sign in to Claude Code to see what is left of your plan.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Planından ne kaldığını görmek için Claude Code'a giriş yap."
+          }
+        }
+      }
+    },
+    "Terminal": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal"
+          }
+        }
+      }
+    },
+    "Updates when Claude Code next runs": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code bir sonraki açılışta günceller"
+          }
+        }
+      }
+    },
+    "VS Code": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "VS Code"
+          }
+        }
+      }
+    },
+    "Waiting for you": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seni bekliyor"
+          }
+        }
+      }
+    },
+    "Waiting for you: %@": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seni bekliyor: %@"
+          }
+        }
+      }
+    },
+    "Working": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Çalışıyor"
+          }
+        }
+      }
+    },
+    "Your turn.": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sıra sende."
+          }
+        }
+      }
+    },
+    "now": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "şimdi"
+          }
+        }
+      }
+    }
+  }
+}
