@@ -102,6 +102,16 @@
         }
       }
     },
+    "Claude is limiting requests · retrying later": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude istekleri sınırlıyor · sonra yeniden denenecek"
+          }
+        }
+      }
+    },
     "Claude usage": {
       "localizations": {
         "tr": {
@@ -168,6 +178,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Boşta"
+          }
+        }
+      }
+    },
+    "Last read %@ ago": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son okuma %@ önce"
           }
         }
       }

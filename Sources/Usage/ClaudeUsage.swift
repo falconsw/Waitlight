@@ -2,7 +2,7 @@ import Combine
 import Foundation
 
 /// One of a plan's windows: how much of it is used and when it starts over.
-struct UsageWindow: Equatable {
+struct UsageWindow: Equatable, Codable {
     let label: String
     /// 0–100.
     let percent: Double
@@ -15,6 +15,8 @@ struct AccountUsage: Identifiable, Equatable {
         case signedOut
         case expired
         case unreachable
+        /// The endpoint is refusing requests for now (HTTP 429).
+        case rateLimited
     }
 
     let account: ClaudeAccount
@@ -44,7 +46,50 @@ final class ClaudeUsage: ObservableObject {
     private var inFlight = false
     nonisolated private static let endpoint = URL(string: "https://api.anthropic.com/api/oauth/usage")!
     /// The endpoint is rate limited; once every few minutes is what a person can see change anyway.
-    private let interval: TimeInterval = 180
+    private let interval: TimeInterval = 300
+
+    /// Until when the endpoint is left alone after a 429, and how many came in
+    /// a row. The limit is shared with everything else reading it on this Mac
+    /// (Claude Code's own `/usage`, Leftover), so asking again at once only
+    /// keeps it shut.
+    private var holdOffUntil: Date?
+    private var refusals = 0
+
+    private let defaults: UserDefaults
+    private static let cacheKey = "usageReadings"
+    private static let holdOffKey = "usageHoldOffUntil"
+
+    /// The last reading of each account is kept, so a launch shows it at once
+    /// and a refused request costs nothing but freshness.
+    private struct Saved: Codable {
+        var plan: String?
+        var windows: [UsageWindow]
+        var readAt: Date
+    }
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        holdOffUntil = defaults.object(forKey: Self.holdOffKey) as? Date
+        let saved = Self.loadSaved(defaults)
+        accounts = ClaudeAccount.discover().compactMap { account in
+            guard let reading = saved[account.id] else { return nil }
+            return AccountUsage(account: account, plan: reading.plan, windows: reading.windows, readAt: reading.readAt)
+        }
+    }
+
+    private static func loadSaved(_ defaults: UserDefaults) -> [String: Saved] {
+        guard let data = defaults.data(forKey: cacheKey) else { return [:] }
+        return (try? JSONDecoder().decode([String: Saved].self, from: data)) ?? [:]
+    }
+
+    private func save() {
+        var saved: [String: Saved] = [:]
+        for usage in accounts {
+            guard let readAt = usage.readAt, !usage.windows.isEmpty else { continue }
+            saved[usage.id] = Saved(plan: usage.plan, windows: usage.windows, readAt: readAt)
+        }
+        defaults.set(try? JSONEncoder().encode(saved), forKey: Self.cacheKey)
+    }
 
     /// Accounts that answered at least once: a `~/.claude-<name>` nobody ever
     /// signed into has nothing to show.
@@ -52,7 +97,7 @@ final class ClaudeUsage: ObservableObject {
 
     func start() {
         timer?.invalidate()
-        refresh()
+        refreshIfStale()   // a relaunch within the minute shows the kept reading instead of asking again
         let timer = Timer(timeInterval: interval, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.refresh() }
         }
@@ -64,12 +109,13 @@ final class ClaudeUsage: ObservableObject {
     /// opens and when a turn ends, the moments a new figure is worth having.
     func refreshIfStale() {
         let oldest = accounts.compactMap(\.readAt).min()
-        if let oldest, Date().timeIntervalSince(oldest) < 60 { return }
+        if let oldest, Date().timeIntervalSince(oldest) < 60, accounts.allSatisfy({ $0.problem == nil }) { return }
         refresh()
     }
 
     func refresh() {
         guard !inFlight else { return }
+        if let holdOffUntil, holdOffUntil > Date() { return }
         inFlight = true
         let discovered = ClaudeAccount.discover()
         Task {
@@ -90,6 +136,16 @@ final class ClaudeUsage: ObservableObject {
                 next.append(usage)
             }
             accounts = next
+            save()
+            if next.contains(where: { $0.problem == .rateLimited }) {
+                refusals += 1
+                // 5, 10, 20, then 30 minutes.
+                holdOffUntil = Date().addingTimeInterval(min(30, 5 * pow(2, Double(refusals - 1))) * 60)
+            } else {
+                refusals = 0
+                holdOffUntil = nil
+            }
+            defaults.set(holdOffUntil, forKey: Self.holdOffKey)
         }
     }
 
@@ -155,6 +211,7 @@ final class ClaudeUsage: ObservableObject {
         switch (response as? HTTPURLResponse)?.statusCode ?? 0 {
         case 200: break
         case 401, 403: return .failure(.expired)
+        case 429: return .failure(.rateLimited)
         default: return .failure(.unreachable)
         }
         let windows = parse(data)

@@ -75,6 +75,11 @@ struct PanelView: View {
                     ForEach(account.windows, id: \.label) { window in
                         UsageBar(window: window, now: now)
                     }
+                    if account.problem != nil, let readAt = account.readAt {
+                        Text(L10n.t("Last read \(L10n.duration(now.timeIntervalSince(readAt))) ago"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }
@@ -85,6 +90,7 @@ struct PanelView: View {
         case .signedOut: return L10n.t("Not signed in")
         case .expired: return L10n.t("Updates when Claude Code next runs")
         case .unreachable: return L10n.t("Could not read just now")
+        case .rateLimited: return L10n.t("Claude is limiting requests · retrying later")
         }
     }
 }
