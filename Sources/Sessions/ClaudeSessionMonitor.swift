@@ -106,6 +106,7 @@ final class ClaudeSessionMonitor: ObservableObject {
     nonisolated static func read(directory: URL,
                                  isAttended: (Int32) -> Bool = isAttended(pid:)) -> [ClaudeSessionRecord] {
         let names = (try? FileManager.default.contentsOfDirectory(atPath: directory.path)) ?? []
+        let scratch = ClaudeUsageCLI.scratchDirectory.path
         let records = names
             .filter { $0.hasSuffix(".json") }
             .compactMap { name -> ClaudeSessionRecord? in
@@ -114,6 +115,8 @@ final class ClaudeSessionMonitor: ObservableObject {
                       let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let record = ClaudeSessionRecord(json: json),
                       record.reportsStatus,
+                      // The app's own `/usage` runs are sessions too, for the seconds they live.
+                      record.cwd != scratch,
                       ProcessLiveness.isAlive(pid: record.pid, startedAt: record.startedAt),
                       !ProcessLiveness.isStopped(pid: record.pid),
                       !record.isFromSDK || isAttended(record.pid)

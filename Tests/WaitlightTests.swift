@@ -109,6 +109,25 @@ final class ReadingTests: XCTestCase {
         XCTAssertEqual(L10n.duration(48 * 3600).filter(\.isNumber), "2")
     }
 
+    func testUsageCLIParse() {
+        let text = """
+        You are currently using your subscription to power your Claude Code usage
+
+        Current session: 50% used · resets Nov 13 at 2:30am (Europe/Istanbul)
+        Current week (all models): 51% used · resets Nov 14 at 6:59am (Europe/Istanbul)
+        Current week (Fable): 48% used · resets Nov 14 at 7am (Europe/Istanbul)
+
+        Last 24h · 562 requests · 9 sessions
+          53%  Start fresh when you switch tasks · run /clear
+        """
+        let now = ISO8601DateFormatter().date(from: "2026-11-12T21:05:00Z")!
+        let windows = ClaudeUsageCLI.parse(text, now: now)
+        XCTAssertEqual(windows.map(\.percent), [50, 51, 48])
+        XCTAssertEqual(windows.last?.label, "Fable")
+        XCTAssertEqual(windows[0].resetsAt, ISO8601DateFormatter().date(from: "2026-11-12T23:30:00Z"))
+        XCTAssertEqual(windows[2].resetsAt, ISO8601DateFormatter().date(from: "2026-11-14T04:00:00Z"))
+    }
+
     func testKeychainSuffixMatchesClaudeCode() {
         // Claude Code's rule: the first eight hex digits of SHA-256 of the path.
         XCTAssertEqual(ClaudeAccount.suffix(forPath: "/Users/omer/.claude"), "073dcc5f")

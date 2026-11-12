@@ -10,8 +10,8 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     SWIFT_STRICT_CONCURRENCY: minimal
-    MARKETING_VERSION: "0.1.2"
-    CURRENT_PROJECT_VERSION: "3"
+    MARKETING_VERSION: "0.1.3"
+    CURRENT_PROJECT_VERSION: "4"
     # Signing identity lives in Signing.xcconfig (ad-hoc unless a local
     # Local.xcconfig names a Developer ID).
     CODE_SIGN_STYLE: Manual

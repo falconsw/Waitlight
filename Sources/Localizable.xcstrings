@@ -252,6 +252,16 @@
         }
       }
     },
+    "Reading…": {
+      "localizations": {
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Okunuyor…"
+          }
+        }
+      }
+    },
     "Resets in %@": {
       "localizations": {
         "tr": {

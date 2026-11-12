@@ -71,9 +71,13 @@ final class ClaudeUsage: ObservableObject {
         self.defaults = defaults
         holdOffUntil = defaults.object(forKey: Self.holdOffKey) as? Date
         let saved = Self.loadSaved(defaults)
-        accounts = ClaudeAccount.discover().compactMap { account in
-            guard let reading = saved[account.id] else { return nil }
-            return AccountUsage(account: account, plan: reading.plan, windows: reading.windows, readAt: reading.readAt)
+        // Every account is listed from the start, kept reading or not: an empty
+        // list reads as "not signed in", which a refused request is not.
+        let held = holdOffUntil.map { $0 > Date() } ?? false
+        accounts = ClaudeAccount.discover().map { account in
+            let reading = saved[account.id]
+            return AccountUsage(account: account, plan: reading?.plan, windows: reading?.windows ?? [],
+                                problem: held ? .rateLimited : nil, readAt: reading?.readAt)
         }
     }
 
@@ -93,7 +97,10 @@ final class ClaudeUsage: ObservableObject {
 
     /// Accounts that answered at least once: a `~/.claude-<name>` nobody ever
     /// signed into has nothing to show.
-    var signedIn: [AccountUsage] { accounts.filter { $0.problem != .signedOut || !$0.windows.isEmpty } }
+    var signedIn: [AccountUsage] {
+        // The default account always shows; a `~/.claude-<name>` only once it has answered or been refused.
+        accounts.filter { $0.account.slug == nil ? ($0.problem != .signedOut || !$0.windows.isEmpty) : ($0.problem == .rateLimited || !$0.windows.isEmpty) }
+    }
 
     func start() {
         timer?.invalidate()
@@ -115,15 +122,25 @@ final class ClaudeUsage: ObservableObject {
 
     func refresh() {
         guard !inFlight else { return }
-        if let holdOffUntil, holdOffUntil > Date() { return }
+        // While the endpoint is being left alone, Claude Code itself is asked.
+        let held = holdOffUntil.map { $0 > Date() } ?? false
         inFlight = true
         let discovered = ClaudeAccount.discover()
         Task {
             defer { inFlight = false }
             var next: [AccountUsage] = []
+            var refused = false
             for account in discovered {
                 var usage = accounts.first { $0.account == account } ?? AccountUsage(account: account)
-                switch await Self.fetch(account) {
+                var outcome = held ? Outcome.failure(.rateLimited) : await Self.fetch(account)
+                if case .failure(.rateLimited) = outcome {
+                    refused = refused || !held
+                    let windows = await ClaudeUsageCLI.read(account)
+                    if !windows.isEmpty {
+                        outcome = .success(plan: await Self.credentials(account)?.plan ?? usage.plan, windows: windows)
+                    }
+                }
+                switch outcome {
                 case .success(let plan, let windows):
                     usage.plan = plan
                     usage.windows = windows
@@ -137,7 +154,8 @@ final class ClaudeUsage: ObservableObject {
             }
             accounts = next
             save()
-            if next.contains(where: { $0.problem == .rateLimited }) {
+            if held { return }   // nothing was asked of the endpoint; its hold stands
+            if refused {
                 refusals += 1
                 // 5, 10, 20, then 30 minutes.
                 holdOffUntil = Date().addingTimeInterval(min(30, 5 * pow(2, Double(refusals - 1))) * 60)

@@ -72,6 +72,9 @@ struct PanelView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                    if account.windows.isEmpty, account.problem == nil {
+                        Text("Reading…").font(.caption).foregroundStyle(.secondary)
+                    }
                     ForEach(account.windows, id: \.label) { window in
                         UsageBar(window: window, now: now)
                     }
