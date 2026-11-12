@@ -56,6 +56,10 @@ final class SessionBoard: ObservableObject {
             let before = previous[id]
             if state == .busy || state == .waiting { finished[id] = nil }
             if before == .busy, state == .idle { finished[id] = tracked.session.since }
+            // Seen for the first time already idle, which is every session open when
+            // the app starts: nobody watched its turn end, but the record says when
+            // it did. A session that has not been used yet went idle as it opened.
+            if before == nil, state == .idle, Self.endedATurn(tracked) { finished[id] = tracked.session.since }
             let row = Self.row(tracked, finished: finished[id])
             if before != nil, before != .waiting, state == .waiting { started.append(row) }
             if before == .busy, state == .idle { ended.append(row) }
@@ -78,6 +82,16 @@ final class SessionBoard: ObservableObject {
         finished[row.id] = nil
         rows = rows.map { $0.id == row.id ? Self.row($0.tracked, finished: nil) : $0 }
             .sorted { $0.phase == $1.phase ? $0.since < $1.since : $0.phase < $1.phase }
+    }
+
+    /// How long ago a turn may have ended and still be shown as done when the
+    /// app starts; older than this it is a session left open, not news.
+    static let freshness: TimeInterval = 60 * 60
+
+    static func endedATurn(_ tracked: ClaudeSessionMonitor.Tracked, now: Date = Date()) -> Bool {
+        guard let started = tracked.startedAt else { return false }
+        let since = tracked.session.since
+        return since.timeIntervalSince(started) > 30 && now.timeIntervalSince(since) < freshness
     }
 
     func row(id: String) -> Row? { rows.first { $0.id == id } }

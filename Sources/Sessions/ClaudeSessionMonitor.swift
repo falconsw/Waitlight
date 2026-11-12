@@ -20,6 +20,9 @@ final class ClaudeSessionMonitor: ObservableObject {
         let session: AgentSession
         let account: ClaudeAccount
         let cwd: String
+        /// When the session opened, so an idle one seen for the first time can be
+        /// told from one that has not been used yet.
+        var startedAt: Date? = nil
         var id: String { session.id }
     }
 
@@ -90,7 +93,8 @@ final class ClaudeSessionMonitor: ObservableObject {
         var found: [Tracked] = []
         for account in accounts {
             for record in Self.read(directory: account.sessionsDirectory) {
-                found.append(Tracked(session: record.session, account: account, cwd: record.cwd))
+                found.append(Tracked(session: record.session, account: account, cwd: record.cwd,
+                                     startedAt: record.startedAt))
             }
         }
         found.sort { Self.newerFirst($0, $1) }

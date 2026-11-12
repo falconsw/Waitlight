@@ -29,6 +29,24 @@ final class SessionBoardTests: XCTestCase {
         XCTAssertEqual(board.rows.first?.phase, .idle)
     }
 
+    func testIdleAtLaunchAfterARecentTurnIsDoneAndNotAnnounced() {
+        let board = SessionBoard(monitor: ClaudeSessionMonitor(discover: { [] }))
+        var done = 0
+        board.onDone = { _ in done += 1 }
+        let ended = Date().addingTimeInterval(-300)
+        let session = AgentSession(id: "claude.1", name: "app", detail: "Terminal · app", state: .idle,
+                                   waitingFor: nil, since: ended, processID: 1)
+        board.apply([.init(session: session, account: account, cwd: "/tmp/app",
+                           startedAt: ended.addingTimeInterval(-600))])
+        XCTAssertEqual(board.rows.first?.phase, .done)
+        XCTAssertEqual(done, 0)
+
+        // Opened and never used: idle since it started.
+        let unused = SessionBoard(monitor: ClaudeSessionMonitor(discover: { [] }))
+        unused.apply([.init(session: session, account: account, cwd: "/tmp/app", startedAt: ended)])
+        XCTAssertEqual(unused.rows.first?.phase, .idle)
+    }
+
     func testWaitingIsAnnouncedOnEntryOnly() {
         let board = SessionBoard(monitor: ClaudeSessionMonitor(discover: { [] }))
         var waits: [String?] = []
